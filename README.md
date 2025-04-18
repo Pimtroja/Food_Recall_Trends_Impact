@@ -1,4 +1,4 @@
-**US Food Recall Trends and Impact (2012 - 2025)**
+# **US Food Recall Trends and Impact (2012 - 2025)**
 Food recalls in the United States have had a significant impact on public health status and imposed financial burdens on businesses over the years. This project analyze food recall trends from 2012 to 2025 to indentify the most common causes and evaluate their effects on consumer health and business operations.
 
 The goal:
@@ -25,3 +25,5 @@ Workflow:
 3. Output
    * Returns a summary showing the number of US states affected by each recall type
    * Can be visualized or exported for further geographic or demographic analysis
+  
+##### Data source from US Food & Drugs Administration (Recalls Details): https://datadashboard.fda.gov/ora/cd/recalls.htm?utm_source
