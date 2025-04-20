@@ -14,9 +14,9 @@ Tools used:
 
 Workflow:
 1. Data Cleaning
-   * Removed rows with missing, irrelevant entries, and white spaces
+   * Removed rows with missing, irrelevant entries, duplicate cases (subsetting "FEI Number") and white spaces
    * Filtered out cosmetic and unrelated product categories
-   * Standardized recall type groupings
+   * Standardized recall type groupings 
 2. State Counting Logic
    * Scan each row of the Distribution Pattern column
    * Searches for both state abbreviations and full state names
