@@ -1,103 +1,114 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-
-fda_path = r"C:\Users\Ahjung\Downloads\Food_Recall.csv"
-fda = pd.read_csv(fda_path)
-
-#filtering out "cosmetic" products
-fda_1 = fda[~fda["Product Description"].str.contains("cosmetic|shampoo", case=False, na=False)]
-fda_1 = fda[~fda["Reason for Recall"].str.contains("cosmetic|shampoo", case=False, na=False)]
-
-#Removing duplicated rows
-fda_1 = fda_1.drop_duplicates(subset="FEI Number")
-
-#"nationwide"
-fda_1["Nationwide"]=np.nan
-nationwide = r"(nationwide|throughout the U\.S\.|thru out the United States\.)"
-fda_1.loc[fda_1["Distribution Pattern"].str.contains(nationwide, case=False, na=False), "Nationwide"] = "Yes"
-fda_1.loc[fda_1["Nationwide"].isnull(), "Nationwide"] = "No"
-
-#E.coli
-ecoli = r"(E. coli|E Coli)"
-fda_1.loc[fda_1["Reason for Recall"].str.contains(ecoli, case=False, na=False), "Reason for Recall"] = "E.coli"
-
-#Listeria
-listeria = r"(listeria|L. mono|monocytogenes)"
-fda_1.loc[fda_1["Reason for Recall"].str.contains(listeria, case=False, na=False), "Reason for Recall"] = "Listeria"
-
-#Salmonella
-salmonella = r"(salmonella|Salmonellosis)"
-fda_1.loc[fda_1["Reason for Recall"].str.contains(salmonella, case=False, na=False), "Reason for Recall"] = "Salmonella"
-
-#Pseudomonas
-pseudomonas = r"(Pseudomonas)"
-fda_1.loc[fda_1["Reason for Recall"].str.contains(pseudomonas, case=False, na=False), "Reason for Recall"] = "Pseudomonas"
-
-#Date to Month and Year
-fda_1["Center Classification Date"] = pd.to_datetime(fda_1["Center Classification Date"])
-fda_1["Year"] = fda_1["Center Classification Date"].dt.year
-fda_1["Month"] = fda_1["Center Classification Date"].dt.month
-fda_1.reset_index(drop=True, inplace=True)
-
-
 !pip install ipython-sql
 !pip install sqlalchemy
 !pip install us
 %load_ext sql
-db_path = "Food_Recall.db"
+
 import sqlite3
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 import re #import regular expressions module (set of string that matches the criteria)
 from collections import defaultdict
 import us #import us library
 
-conn = fda_1
+fda_path = r"C:\Users\Ahjung\Downloads\Food_Recall.csv"
+fda = pd.read_csv(fda_path)
 conn = sqlite3.connect("Food_Recall.db")
 fda.to_sql("Food_Recall", conn, if_exists="replace", index=False)
 
 #checking for missing values
-fda_1.isnull().sum()
+fda.isnull().sum()
+
+#check for data types and info()
+fda.info()
+
+#checking each columns for anomalies by looking at the number of unique values
+fda.nunique()
 
 #drop unrelated columns
-fda_1 = fda_1.drop(columns = ["Event ID", "Center", "Recall Details"])
+fda_1 = fda.drop(columns = ["Center", "Recall Details"])
 
-#Count each state once per row even if both abbreviation and full name appear
-#Count either abbreviation or full name, not both, only one per state per row
-#Sum that up across all rows for each state
+#remove duplicate rows
+fda_1 = fda_1.drop_duplicates(subset="FEI Number")
+
+#filtering out "cosmetic" products
+fda_1 = fda_1[~fda["Product Description"].str.contains("cosmetic" or "shampoo", case = False, na = False)]
+fda_1 = fda_1[~fda["Reason for Recall"].str.contains("cosmetic" or "shampoo", case = False, na = False)]
+
+#create a new column "Reason Category" to categorize common reasons for recall
+#define patterns (key/value dictionary)
+patterns = {
+    "Undeclared": r"(undeclared|declare|declaration)",
+    "Listeria": r"(listeria|L. mono|monocytogenes)",
+    "Salmonella": r"(salmonella|salmonellosis)",
+    "Pseudomonas": r"(pseudomonas)",
+    "Mold": r"(mold)",
+    "E-Coli": r"(e-coli|e coli|e. coli)" #match e-coli or e coli
+}
+
+#create a new column and default to 'Others'
+fda_1["Reason Category"] = "Others"
+
+#categorize based on the pattern matching
+for category, pattern in patterns.items():
+    fda_1.loc[fda_1["Reason for Recall"].str.contains(pattern, case=False, na=False), "Reason Category"] = category
+
+fda_1["Reason Category"].value_counts()
+
+#create a nationwide column
+fda_1["Nationwide"] = np.nan
+nationwide = r"(nationwide|throughout the U.S.|thru out the United States.)"
+fda_1.loc[fda_1["Distribution Pattern"].str.contains(nationwide, case=False, na=False), "Nationwide"] = "Yes"
+fda_1.loc[fda_1["Nationwide"].isnull(), "Nationwide"] = "No"
+
+#date to Month and Year
+fda_1["Center Classification Date"] = pd.to_datetime(fda_1["Center Classification Date"])
+fda_1["Year"] = fda_1["Center Classification Date"].dt.year
+fda_1["Month"] = fda_1["Center Classification Date"].dt.month
+
+#reorganize the columns
+new_column_order = [
+    "FEI Number", "Recalling Firm Name", "Product Type", "Product Classification",
+    "Status", "Distribution Pattern", "Nationwide", "Recalling Firm City", 
+    "Recalling Firm State", "Recalling Firm Country", "Center Classification Date", 
+    "Reason for Recall", "Reason Category", "Product Description", "Event ID", 
+    "Event Classification", "Product ID"
+]
+
+fda_1 = fda_1[new_column_order]
+
+#reset index
+fda_1.reset_index(drop=True, inplace=True)
+
+#count each state once per row even if both abbreviation and full name appear
+#count either abbreviation or full name, not both, only one per state per row
+#sum that up across all rows for each state
 
 #create dictionary of state abbreviations and full names
 states = {state.abbr: state.name for state in us.states.STATES}
 
-#Store in count number
+#store in count number
 state_counts = defaultdict(int)
 
-#Loop through each row in the fda_1 DataFrame
+#loop through each row in the fda_1 DataFrame
 for i, row in fda_1.dropna(subset=['Distribution Pattern']).iterrows():
     pattern = row["Distribution Pattern"].lower()
 
-    #If "Nationewide" column is "Yes", add 1 to all states
+    #If "Nationwide" column is "Yes", add 1 to all states
     if str(row.get("Nationwide", "")).strip().lower() == "Yes":
         for full in states.values():
             state_counts[full] += 1
             
-#If "Naionwide" is not "Yes", check each state abbreviation and full name
+#if "Naionwide" is not "Yes", check each state abbreviation and full name
     else:
         for abbr, full in states.items():
             if (re.search(r'\b' + abbr + r'\b', pattern, flags = re.IGNORECASE) or
              re.search(r'\b' + full + r'\b', pattern, flags = re.IGNORECASE)):
              state_counts[full] += 1
 
-#Get a count of how many rows mention each state
-#Convert to DataFrame
+#get a count of how many rows mention each state
+#convert to DataFrame
 state_counts = pd.DataFrame([
     {'State': full, 'Count': count} for full, count in state_counts.items()
 ])
-
-
-
-
-
-
-
-
