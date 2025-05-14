@@ -88,27 +88,47 @@ fda_1.reset_index(drop=True, inplace=True)
 #create dictionary of state abbreviations and full names
 states = {state.abbr: state.name for state in us.states.STATES}
 
-#store in count number
-state_counts = defaultdict(int)
+#create dataframe
+results = []
 
-#loop through each row in the fda_1 DataFrame
-for i, row in fda_1.dropna(subset=['Distribution Pattern']).iterrows():
-    pattern = row["Distribution Pattern"].lower()
+#drop null data in "Distrubtion Pattern" column
+filtered_df = fda_1.dropna(subset=['Distribution Pattern'])
 
-    #If "Nationwide" column is "Yes", add 1 to all states
-    if str(row.get("Nationwide", "")).strip().lower() == "Yes":
-        for full in states.values():
-            state_counts[full] += 1
-            
+#loop through each row in the fda_1 DataFrame with group "Year", "Month", and "Reason Category"
+for (year, month, reason), group_df in filtered_df.groupby(['Year', 'Month', 'Reason Category']):
+    state_counts = defaultdict(int)
+
+    for i, row in group_df.iterrows():
+        pattern = row["Distribution Pattern"].lower()
+        nationwide = str(row.get("Nationwide", "")).strip().lower()
+
+#If "Nationwide" column is "Yes", add 1 to all states
+        if nationwide == "Yes":
+            for full in states.values():
+                state_counts[full] += 1
+
 #if "Naionwide" is not "Yes", check each state abbreviation and full name
-    else:
-        for abbr, full in states.items():
-            if (re.search(r'\b' + abbr + r'\b', pattern, flags = re.IGNORECASE) or
-             re.search(r'\b' + full + r'\b', pattern, flags = re.IGNORECASE)):
-             state_counts[full] += 1
+        else:
+            for abbr, full in states.items():
+                if (re.search(r'\b' + abbr + r'\b', pattern, flags=re.IGNORECASE) or
+                    re.search(r'\b' + full + r'\b', pattern, flags=re.IGNORECASE)):
+                    state_counts[full] += 1
 
 #get a count of how many rows mention each state
+     for state, count in state_counts.items():
+         results.append({
+            'Year': year,
+            'Month': month,
+            'Reason Category': reason,
+            'State': state,
+            'Count': count
+        })
 #convert to DataFrame
-state_counts = pd.DataFrame([
-    {'State': full, 'Count': count} for full, count in state_counts.items()
-])
+state_counts_df = pd.DataFrame(results)
+
+#extract the dataframe into csv file
+state_counts_df.to_csv("state_counts.csv", index=False)
+
+
+#extrac the fda_1 dataframe into csv file
+fda_1.to_csv("clean_fda_data_rev1.csv")
