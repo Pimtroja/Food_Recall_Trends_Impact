@@ -1,0 +1,6 @@
+Convert dataframe to csv:
+dataframe_name.to_csv('New dataframe name.csv', index = False)
+
+Cleaner view of the output:
+display(dataframe.head())
+
