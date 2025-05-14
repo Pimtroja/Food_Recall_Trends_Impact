@@ -33,8 +33,8 @@ fda_1 = fda.drop(columns = ["Center", "Recall Details"])
 fda_1 = fda_1.drop_duplicates(subset="FEI Number")
 
 #filtering out "cosmetic" products
-fda_1 = fda_1[~fda["Product Description"].str.contains("cosmetic" or "shampoo", case = False, na = False)]
-fda_1 = fda_1[~fda["Reason for Recall"].str.contains("cosmetic" or "shampoo", case = False, na = False)]
+fda_1 = fda_1[~fda["Product Description"].str.contains("cosmetic|shampoo", case = False, na = False)]
+fda_1 = fda_1[~fda["Reason for Recall"].str.contains("cosmetic|shampoo", case = False, na = False)]
 
 #create a new column "Reason Category" to categorize common reasons for recall
 #define patterns (key/value dictionary)
