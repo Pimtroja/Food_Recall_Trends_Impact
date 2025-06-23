@@ -27,3 +27,4 @@ Workflow:
    * Can be visualized or exported for further geographic or demographic analysis
   
 ##### Data source from US Food & Drugs Administration (Recalls Details): https://datadashboard.fda.gov/ora/cd/recalls.htm?utm_source
+##### Population source from US Census: www.census.gov
