@@ -1,30 +1,31 @@
 # **US Food Recall Trends and Impact (2012 - 2025)**
-Food recalls in the United States have had a significant impact on public health status and imposed financial burdens on businesses over the years. This project analyze food recall trends from 2012 to 2025 to indentify the most common causes and evaluate their effects on consumer health and business operations.
+Food recalls in the United States have had a significant impact on public health status and imposed financial burdens on businesses over the years. This project analyze food recall trends from 2012 to 2025 to uncover the most common causes, identify geographic hotspots, and evaluate correlations with state population.
 
 The goal:
-*Isolate food recall data (excluding cosmetics and other non-food products)
-*Group the data by recall type
-*Count how many unique US states are impacted for each recall type
-*Support data analysis and storytelling related to common causes and their impact on consumer health and business operations
+*Isolate and analyze food recall data (excluding non-food products)
+*Identify top recall categories and affected regions
+*Track recall trends over time and by geography
+*Assess correlation between population and number of recalls
+*Communicate findings through interactive visual storytelling
 
-Tools used:
-*Language - Python, SQL
-*Environment - Jupyter Notebook
-*Libraries - pandas for data handling, re for regular expressions, collections (defaultdict) for clean counting logic, us for accessing US sate abbreviations and names.
+Tools & Methods:
+*Python (Pandas, Regex, US Module)
+*SQL for structured queries
+*Jupyter Notebook for analysis
+*Tableau for dynamic and geographic visualization
 
-Workflow:
-1. Data Cleaning
-   * Removed rows with missing, irrelevant entries, duplicate cases (subsetting "FEI Number") and white spaces
-   * Filtered out cosmetic and unrelated product categories
-   * Standardized recall type groupings 
-2. State Counting Logic
-   * Scan each row of the Distribution Pattern column
-   * Searches for both state abbreviations and full state names
-   * Ensure a row with both CA and California counts only once for California
-   * Track counts of states per recall type
-3. Output
-   * Returns a summary showing the number of US states affected by each recall type
-   * Can be visualized or exported for further geographic or demographic analysis
-  
+Workflow Highlights:
+1. Cleaned and filtered raw FDA recall data
+2. Standardized recall categories and removed non-food items
+3. Parsed state names from distribution patterns using robust string matching logic
+4. Summarized and aggregated recall events by state, category, and time
+5. Merged with US Census data for demographic comparisons
+
+Key Visuals:
+1. US Map with animated hotspots by recall type and year
+2. Top 5 states by recall events (stacked bar)
+3. Timeline trends by month and category
+4. Recall events vs population (scatterplot with trendline)
+   
 ##### Data source from US Food & Drugs Administration (Recalls Details): https://datadashboard.fda.gov/ora/cd/recalls.htm?utm_source
 ##### Population source from US Census: www.census.gov
