@@ -28,6 +28,7 @@ Key Visuals:
 2. Top 5 states by recall events (stacked bar)
 3. Timeline trends by month and category
 4. Recall events vs population (scatterplot with trendline)
+   
 [Power BI]
 1. Yearly trend of the number of recall (line chart) - Interactive filters by recall reason category
 2. Monthly Average Recall Trend (Line Chart) with Current Year Comparison – Interactive filters by reason category
