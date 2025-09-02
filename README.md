@@ -13,6 +13,7 @@ Tools & Methods:
 *SQL for structured queries
 *Jupyter Notebook for analysis
 *Tableau for dynamic and geographic visualization
+*Power BI for monitoring the trend based on the key insights
 
 Workflow Highlights:
 1. Cleaned and filtered raw FDA recall data
@@ -22,10 +23,15 @@ Workflow Highlights:
 5. Merged with US Census data for demographic comparisons
 
 Key Visuals:
+[Tableau]
 1. US Map with animated hotspots by recall type and year
 2. Top 5 states by recall events (stacked bar)
 3. Timeline trends by month and category
 4. Recall events vs population (scatterplot with trendline)
-   
+[Power BI]
+1. Yearly trend of the number of recall (line chart) - Interactive filters by recall reason category
+2. Monthly Average Recall Trend (Line Chart) with Current Year Comparison – Interactive filters by reason category
+3. Recall events vs population (combo chart) - Interactive filters by year, reason category, region and state
+
 ##### Data source from US Food & Drugs Administration (Recalls Details): https://datadashboard.fda.gov/ora/cd/recalls.htm?utm_source
 ##### Population source from US Census: www.census.gov
